@@ -10,6 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 console.log('MongoDB URI:', process.env.MONGODB_URI ? 'Set' : 'Not set');
+console.log('Full URI value:', process.env.MONGODB_URI);
 console.log('Build timestamp:', new Date().toISOString());
 
 let db;
