@@ -12,12 +12,15 @@ app.use(cors());
 app.use(express.json());
 
 console.log('MongoDB URI:', process.env.MONGODB_URI ? 'Set' : 'Not set');
+console.log('Build timestamp:', new Date().toISOString());
 
-// Connect to MongoDB with better timeout settings
+// Connect to MongoDB with very long timeouts for Atlas free tier
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/taskmanager', {
-  serverSelectionTimeoutMS: 30000,
-  socketTimeoutMS: 120000,
+  serverSelectionTimeoutMS: 60000,
+  socketTimeoutMS: 180000,
   maxPoolSize: 10,
+  bufferCommands: true,
+  bufferMaxEntries: 0,
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
