@@ -20,15 +20,7 @@ const connectDB = async () => {
   if (db) return db;
   
   try {
-    const client = new MongoClient(process.env.MONGODB_URI || 'mongodb://localhost:27017/taskmanager', {
-      serverSelectionTimeoutMS: 60000,
-      socketTimeoutMS: 180000,
-      maxPoolSize: 10,
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      tls: true,
-      tlsAllowInvalidCertificates: true
-    });
+    const client = new MongoClient(process.env.MONGODB_URI || 'mongodb://localhost:27017/taskmanager');
     
     await client.connect();
     db = client.db('taskmanager');
