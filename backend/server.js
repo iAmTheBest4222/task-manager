@@ -23,8 +23,6 @@ const connectDB = async () => {
       serverSelectionTimeoutMS: 60000,
       socketTimeoutMS: 180000,
       maxPoolSize: 10,
-      ssl: true,
-      sslValidate: false,
       useNewUrlParser: true,
       useUnifiedTopology: true
     });
