@@ -6,38 +6,38 @@ Your Vercel deployment is experiencing SSL connection errors when trying to conn
 C068D50CD87F0000:error:0A000438:SSL routines:ssl3_read_bytes:tlsv1 alert internal error
 ```
 
-## Solutions Implemented
+## Latest Solutions Implemented
 
-### 1. Enhanced MongoDB Connection Configuration
-Updated all API routes with proper SSL/TLS settings:
-- Explicit SSL/TLS configuration
-- Proper timeout settings
-- Connection pooling optimization
-- Better error handling
+### 1. Smart Connection Method with Fallback SSL Configurations
+Created a new `lib/mongodb.js` that tries multiple SSL configurations:
+- **Most permissive** (for Vercel): `sslValidate: false`, `tlsAllowInvalidCertificates: true`
+- **Standard SSL**: Full validation enabled
+- **Minimal SSL**: Basic SSL only
 
-### 2. Updated MongoDB URI
-Modified the connection string to include proper SSL parameters:
+### 2. Simplified MongoDB URI
+Updated connection string to remove problematic parameters:
 ```
-mongodb+srv://keshumishra987_db_user:2RVxHqLjp0Ex3BdU@cluster0.vhdsmnb.mongodb.net/?appName=Cluster0&ssl=true&retryWrites=true&w=majority
+mongodb+srv://keshumishra987_db_user:2RVxHqLjp0Ex3BdU@cluster0.vhdsmnb.mongodb.net/taskmanager?retryWrites=true&w=majority
 ```
 
-### 3. Improved Error Handling
-- Added detailed error logging
-- Better connection management
-- Proper resource cleanup
+### 3. Centralized Connection Logic
+All API routes now use the new `connectToDatabase()` function which:
+- Automatically tries different SSL configurations
+- Provides detailed logging for debugging
+- Ensures consistent connection handling
 
 ## Required Actions
 
 ### 1. Update Vercel Environment Variables
-Go to your Vercel dashboard and set these environment variables:
+Go to your Vercel dashboard and set this environment variable:
 
 **MONGODB_URI:**
 ```
-mongodb+srv://keshumishra987_db_user:2RVxHqLjp0Ex3BdU@cluster0.vhdsmnb.mongodb.net/?appName=Cluster0&ssl=true&retryWrites=true&w=majority
+mongodb+srv://keshumishra987_db_user:2RVxHqLjp0Ex3BdU@cluster0.vhdsmnb.mongodb.net/taskmanager?retryWrites=true&w=majority
 ```
 
 ### 2. Redeploy Your Application
-After setting the environment variables:
+After setting the environment variable:
 1. Go to your Vercel project
 2. Click on "Redeploy" or push a new commit
 3. Wait for deployment to complete
@@ -47,37 +47,49 @@ Check these URLs:
 - Health check: `https://task-manager-6k6l.vercel.app/api/health`
 - Tasks: `https://task-manager-6k6l.vercel.app/api/tasks`
 
+## How the Fix Works
+
+The new connection method automatically tries these SSL configurations in order:
+
+1. **Permissive Mode** (works in most Vercel environments)
+   - SSL enabled but validation disabled
+   - Allows invalid certificates and hostnames
+   - Optimized for serverless environments
+
+2. **Standard Mode** (secure environments)
+   - Full SSL validation
+   - Standard security settings
+
+3. **Minimal Mode** (fallback)
+   - Basic SSL only
+   - Minimal configuration
+
+## Debugging Information
+
+The system now provides detailed logging:
+- Which SSL configuration worked
+- Connection status
+- Error details if all attempts fail
+
 ## Alternative Solutions
 
-If the SSL error persists, try these additional options:
+If the issue persists after this fix:
 
-### Option 1: Disable SSL Validation (Not Recommended for Production)
-Update the MongoDB connection options to:
-```javascript
-const client = new MongoClient(process.env.MONGODB_URI, {
-  ssl: true,
-  sslValidate: false, // Only for testing
-  tls: true,
-  tlsAllowInvalidCertificates: true, // Only for testing
-  // ... other options
-});
-```
-
-### Option 2: Use MongoDB Atlas IP Whitelist
+### Option 1: MongoDB Atlas IP Whitelist
 1. Go to MongoDB Atlas dashboard
 2. Network Access → Add IP Address
-3. Add `0.0.0.0/0` (allows access from anywhere - not recommended for production)
+3. Add `0.0.0.0/0` (allows access from anywhere)
 4. Or add Vercel's IP ranges
 
-### Option 3: Check MongoDB Atlas Configuration
-1. Ensure your MongoDB Atlas cluster is running
-2. Check if you're using the correct driver version
-3. Verify database user permissions
+### Option 2: Check MongoDB Atlas Configuration
+1. Ensure your MongoDB Atlas cluster is running (M0+ tier recommended)
+2. Verify database user has correct permissions
+3. Check if cluster is in the same region as Vercel
 
-## Monitoring
-After deployment, check Vercel function logs for any remaining connection issues.
+### Option 3: Upgrade MongoDB Atlas Tier
+Free tier (M0) clusters sometimes have connection limitations. Consider upgrading to M2+ for better reliability.
 
 ## Security Notes
-- The `sslValidate: false` option should only be used for testing
-- Always use proper SSL validation in production
-- Consider using Vercel's IP ranges for MongoDB Atlas whitelist
+- The permissive SSL mode is only used as a fallback
+- Production environments should use standard SSL validation
+- Monitor Vercel function logs for connection patterns

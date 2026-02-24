@@ -1,23 +1,11 @@
-import { MongoClient } from 'mongodb';
+import { connectToDatabase } from '../../../../lib/mongodb';
 
 export async function GET(request, { params }) {
   let client;
   try {
-    client = new MongoClient(process.env.MONGODB_URI, {
-      ssl: true,
-      sslValidate: true,
-      tls: true,
-      tlsAllowInvalidCertificates: false,
-      tlsAllowInvalidHostnames: false,
-      serverSelectionTimeoutMS: 10000,
-      socketTimeoutMS: 10000,
-      connectTimeoutMS: 10000,
-      maxPoolSize: 1,
-      minPoolSize: 0
-    });
-
-    await client.connect();
-    const db = client.db('taskmanager');
+    const { client: dbClient, db } = await connectToDatabase();
+    client = dbClient;
+    
     const task = await db.collection('tasks').findOne({ _id: params.id });
     
     if (!task) {
@@ -44,21 +32,8 @@ export async function PUT(request, { params }) {
       return Response.json({ message: 'Title and description are required' }, { status: 400 });
     }
 
-    client = new MongoClient(process.env.MONGODB_URI, {
-      ssl: true,
-      sslValidate: true,
-      tls: true,
-      tlsAllowInvalidCertificates: false,
-      tlsAllowInvalidHostnames: false,
-      serverSelectionTimeoutMS: 10000,
-      socketTimeoutMS: 10000,
-      connectTimeoutMS: 10000,
-      maxPoolSize: 1,
-      minPoolSize: 0
-    });
-
-    await client.connect();
-    const db = client.db('taskmanager');
+    const { client: dbClient, db } = await connectToDatabase();
+    client = dbClient;
     
     const updateData = {
       title,
@@ -90,21 +65,8 @@ export async function PUT(request, { params }) {
 export async function DELETE(request, { params }) {
   let client;
   try {
-    client = new MongoClient(process.env.MONGODB_URI, {
-      ssl: true,
-      sslValidate: true,
-      tls: true,
-      tlsAllowInvalidCertificates: false,
-      tlsAllowInvalidHostnames: false,
-      serverSelectionTimeoutMS: 10000,
-      socketTimeoutMS: 10000,
-      connectTimeoutMS: 10000,
-      maxPoolSize: 1,
-      minPoolSize: 0
-    });
-
-    await client.connect();
-    const db = client.db('taskmanager');
+    const { client: dbClient, db } = await connectToDatabase();
+    client = dbClient;
     
     const result = await db.collection('tasks').deleteOne({ _id: params.id });
 

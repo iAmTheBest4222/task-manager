@@ -1,25 +1,13 @@
-import { MongoClient } from 'mongodb';
+import { connectToDatabase } from '../../../lib/mongodb';
 
 export async function GET() {
   let client;
   try {
     console.log('MongoDB URI:', process.env.MONGODB_URI ? 'Set' : 'Not set');
     
-    client = new MongoClient(process.env.MONGODB_URI, {
-      ssl: true,
-      sslValidate: true,
-      tls: true,
-      tlsAllowInvalidCertificates: false,
-      tlsAllowInvalidHostnames: false,
-      serverSelectionTimeoutMS: 10000,
-      socketTimeoutMS: 10000,
-      connectTimeoutMS: 10000,
-      maxPoolSize: 1,
-      minPoolSize: 0
-    });
+    const { client: dbClient, db } = await connectToDatabase();
+    client = dbClient;
     
-    await client.connect();
-    const db = client.db('taskmanager');
     const tasks = await db.collection('tasks').find({}).sort({ createdAt: -1 }).toArray();
     
     console.log('Found tasks:', tasks.length);
@@ -49,21 +37,8 @@ export async function POST(request) {
       return Response.json({ message: 'Title and description are required' }, { status: 400 });
     }
 
-    client = new MongoClient(process.env.MONGODB_URI, {
-      ssl: true,
-      sslValidate: true,
-      tls: true,
-      tlsAllowInvalidCertificates: false,
-      tlsAllowInvalidHostnames: false,
-      serverSelectionTimeoutMS: 10000,
-      socketTimeoutMS: 10000,
-      connectTimeoutMS: 10000,
-      maxPoolSize: 1,
-      minPoolSize: 0
-    });
-
-    await client.connect();
-    const db = client.db('taskmanager');
+    const { client: dbClient, db } = await connectToDatabase();
+    client = dbClient;
     
     const task = {
       title,

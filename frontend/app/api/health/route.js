@@ -1,25 +1,14 @@
-import { MongoClient } from 'mongodb';
-
-const client = new MongoClient(process.env.MONGODB_URI, {
-  ssl: true,
-  sslValidate: true,
-  tls: true,
-  tlsAllowInvalidCertificates: false,
-  tlsAllowInvalidHostnames: false,
-  serverSelectionTimeoutMS: 5000,
-  socketTimeoutMS: 10000,
-  connectTimeoutMS: 10000
-});
+import { connectToDatabase } from '../../../lib/mongodb';
 
 export async function GET() {
+  let client;
   try {
     console.log('MongoDB URI:', process.env.MONGODB_URI ? 'Set' : 'Not set');
     console.log('Build timestamp:', new Date().toISOString());
     
     // Test database connection
-    await client.connect();
-    const db = client.db('taskmanager');
-    await db.admin().ping(); // Test the connection
+    const { client: dbClient, db } = await connectToDatabase();
+    client = dbClient;
     
     return Response.json({ 
       status: 'OK',
@@ -39,6 +28,8 @@ export async function GET() {
       error: error.message
     }, { status: 500 });
   } finally {
-    await client.close();
+    if (client) {
+      await client.close();
+    }
   }
 }
