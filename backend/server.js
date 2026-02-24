@@ -25,7 +25,9 @@ const connectDB = async () => {
       socketTimeoutMS: 180000,
       maxPoolSize: 10,
       useNewUrlParser: true,
-      useUnifiedTopology: true
+      useUnifiedTopology: true,
+      tls: true,
+      tlsAllowInvalidCertificates: true
     });
     
     await client.connect();
