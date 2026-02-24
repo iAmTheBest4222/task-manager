@@ -13,17 +13,18 @@ app.use(express.json());
 
 console.log('MongoDB URI:', process.env.MONGODB_URI ? 'Set' : 'Not set');
 
-// Connect to MongoDB
+// Connect to MongoDB with better timeout settings
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/taskmanager', {
-  serverSelectionTimeoutMS: 5000,
-  socketTimeoutMS: 45000,
+  serverSelectionTimeoutMS: 30000,
+  socketTimeoutMS: 120000,
+  maxPoolSize: 10,
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
   .then(() => console.log('MongoDB connected'))
   .catch((err) => console.log('MongoDB connection error:', err));
 
-// Register routes (they will wait for connection if needed)
+// Register routes
 app.use('/api/tasks', taskRoutes);
 
 app.listen(PORT, () => {
