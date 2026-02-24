@@ -1,9 +1,21 @@
 import { MongoClient } from 'mongodb';
 
-const client = new MongoClient(process.env.MONGODB_URI);
-
 export async function GET(request, { params }) {
+  let client;
   try {
+    client = new MongoClient(process.env.MONGODB_URI, {
+      ssl: true,
+      sslValidate: true,
+      tls: true,
+      tlsAllowInvalidCertificates: false,
+      tlsAllowInvalidHostnames: false,
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 10000,
+      connectTimeoutMS: 10000,
+      maxPoolSize: 1,
+      minPoolSize: 0
+    });
+
     await client.connect();
     const db = client.db('taskmanager');
     const task = await db.collection('tasks').findOne({ _id: params.id });
@@ -16,11 +28,14 @@ export async function GET(request, { params }) {
   } catch (error) {
     return Response.json({ message: 'Error fetching task', error: error.message }, { status: 500 });
   } finally {
-    await client.close();
+    if (client) {
+      await client.close();
+    }
   }
 }
 
 export async function PUT(request, { params }) {
+  let client;
   try {
     const body = await request.json();
     const { title, description, status } = body;
@@ -28,6 +43,19 @@ export async function PUT(request, { params }) {
     if (!title || !description) {
       return Response.json({ message: 'Title and description are required' }, { status: 400 });
     }
+
+    client = new MongoClient(process.env.MONGODB_URI, {
+      ssl: true,
+      sslValidate: true,
+      tls: true,
+      tlsAllowInvalidCertificates: false,
+      tlsAllowInvalidHostnames: false,
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 10000,
+      connectTimeoutMS: 10000,
+      maxPoolSize: 1,
+      minPoolSize: 0
+    });
 
     await client.connect();
     const db = client.db('taskmanager');
@@ -53,12 +81,28 @@ export async function PUT(request, { params }) {
   } catch (error) {
     return Response.json({ message: 'Error updating task', error: error.message }, { status: 500 });
   } finally {
-    await client.close();
+    if (client) {
+      await client.close();
+    }
   }
 }
 
 export async function DELETE(request, { params }) {
+  let client;
   try {
+    client = new MongoClient(process.env.MONGODB_URI, {
+      ssl: true,
+      sslValidate: true,
+      tls: true,
+      tlsAllowInvalidCertificates: false,
+      tlsAllowInvalidHostnames: false,
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 10000,
+      connectTimeoutMS: 10000,
+      maxPoolSize: 1,
+      minPoolSize: 0
+    });
+
     await client.connect();
     const db = client.db('taskmanager');
     
@@ -72,6 +116,8 @@ export async function DELETE(request, { params }) {
   } catch (error) {
     return Response.json({ message: 'Error deleting task', error: error.message }, { status: 500 });
   } finally {
-    await client.close();
+    if (client) {
+      await client.close();
+    }
   }
 }
