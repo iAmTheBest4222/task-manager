@@ -4,12 +4,21 @@ const client = new MongoClient(process.env.MONGODB_URI);
 
 export async function GET() {
   try {
+    console.log('MongoDB URI:', process.env.MONGODB_URI ? 'Set' : 'Not set');
+    
     await client.connect();
     const db = client.db('taskmanager');
     const tasks = await db.collection('tasks').find({}).sort({ createdAt: -1 }).toArray();
+    
+    console.log('Found tasks:', tasks.length);
     return Response.json(tasks);
   } catch (error) {
-    return Response.json({ message: 'Error fetching tasks', error: error.message }, { status: 500 });
+    console.error('Database error:', error);
+    return Response.json({ 
+      message: 'Error fetching tasks', 
+      error: error.message,
+      uriSet: !!process.env.MONGODB_URI
+    }, { status: 500 });
   } finally {
     await client.close();
   }
