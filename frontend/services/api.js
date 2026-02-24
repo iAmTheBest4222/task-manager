@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://task-manager-6k6l.vercel.app/api';
 
 export const taskApi = {
   getAllTasks: async () => {
