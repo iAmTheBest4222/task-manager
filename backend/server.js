@@ -38,6 +38,16 @@ const connectDB = async () => {
   }
 };
 
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    env: process.env.MONGODB_URI ? 'Set' : 'Not set',
+    envValue: process.env.MONGODB_URI ? '***masked***' : 'null'
+  });
+});
+
 // Routes
 app.get('/api/tasks', async (req, res) => {
   try {
