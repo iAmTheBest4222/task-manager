@@ -22,7 +22,11 @@ const connectDB = async () => {
     const client = new MongoClient(process.env.MONGODB_URI || 'mongodb://localhost:27017/taskmanager', {
       serverSelectionTimeoutMS: 60000,
       socketTimeoutMS: 180000,
-      maxPoolSize: 10
+      maxPoolSize: 10,
+      ssl: true,
+      sslValidate: false,
+      useNewUrlParser: true,
+      useUnifiedTopology: true
     });
     
     await client.connect();
