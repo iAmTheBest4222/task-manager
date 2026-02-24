@@ -13,7 +13,14 @@ app.use(express.json());
 
 console.log('MongoDB URI:', process.env.MONGODB_URI ? 'Set' : 'Not set');
 
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/taskmanager')
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/taskmanager', {
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+  bufferMaxEntries: 0,
+  bufferCommands: false,
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
   .then(() => console.log('MongoDB connected'))
   .catch((err) => console.log('MongoDB connection error:', err));
 
